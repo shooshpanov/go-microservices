@@ -6,8 +6,8 @@ import (
 	"log"
 
 	micro "github.com/micro/go-micro"
-	vesselProto "github.com/microservices-project/consignment-service/proto/vessel"
 	pb "github.com/shooshpanov/microservices-project/consignment-service/proto/consignment"
+	vesselProto "github.com/shooshpanov/microservices-project/vessel-service/proto/vessel"
 	"golang.org/x/net/context"
 )
 
