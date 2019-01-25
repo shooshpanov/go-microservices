@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	dbName           = "shippy"
+	dbName           = "microservices-project"
 	vesselCollection = "vessels"
 )
 
