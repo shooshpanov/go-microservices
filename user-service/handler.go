@@ -65,32 +65,50 @@ func (srv *service) Create(ctx context.Context, req *pb.User, res *pb.Response) 
 	}
 	res.User = req
 
-	if err := srv.publishEvent(req); err != nil {
+	if err := srv.Publisher.Publish(ctx, req); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (srv *servuce) publishEvent(user *pb.User) error {
-	// Marshall JSON string
-	body, err := json.Marshal(user)
+func (srv *service) ValidateToken(ctx context.Context, req *pb.Token, res *pb.Token) error {
+
+	// Decode token
+	claims, err := srv.tokenService.Decode(req.Token)
+
 	if err != nil {
 		return err
 	}
 
-	// Create message to broker
-	msg := &broker.Message{
-		Header: map[string]string{
-			"id": user.id,
-		},
-		Body: body,
+	if claims.User.Id == "" {
+		return errors.New("invalid user")
 	}
 
-	// Publish message to broker
-	if err:= srv.PubSub.Publish(topic, msg); err != nil {
-		log.Printf("[pub] failed: %v", err)
-	}
+	res.Valid = true
 
 	return nil
 }
+
+// func (srv *servuce) publishEvent(user *pb.User) error {
+// 	// Marshall JSON string
+// 	body, err := json.Marshal(user)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	// Create message to broker
+// 	msg := &broker.Message{
+// 		Header: map[string]string{
+// 			"id": user.id,
+// 		},
+// 		Body: body,
+// 	}
+
+// 	// Publish message to broker
+// 	if err:= srv.PubSub.Publish(topic, msg); err != nil {
+// 		log.Printf("[pub] failed: %v", err)
+// 	}
+
+// 	return nil
+// }
