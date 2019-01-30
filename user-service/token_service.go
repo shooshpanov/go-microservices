@@ -3,19 +3,18 @@ package main
 import (
 	"time"
 
-	pb "github.com/shooshpanov/microservices-project/user-service/proto/user"
-	"github.com/dgrijalva/jwt-go"
-
+	jwt "github.com/dgrijalva/jwt-go"
+	pb "github.com/shooshpanov/microservices-project/user-service/proto/auth"
 )
 
 var (
 	// salt key
-	key := []byte("mySurepSecretKey")
+	key = []byte("mySuperSecretKey")
 )
 
 type CustomClaims struct {
 	User *pb.User
-	jwt.StandartClaims
+	jwt.StandardClaims
 }
 
 type Authable interface {
@@ -32,6 +31,13 @@ func (srv *TokenService) Decode(tokenString string) (*CustomClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return key, nil
 	})
+
+	// Validate the token and return the custom claims
+	if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
+		return claims, nil
+	}
+
+	return nil, err
 }
 
 func (srv *TokenService) Encode(user *pb.User) (string, error) {
@@ -41,9 +47,9 @@ func (srv *TokenService) Encode(user *pb.User) (string, error) {
 	// Create the Claims
 	claims := CustomClaims{
 		user,
-		jwt.StandartClaims{
-			ExpireAt: expireToken,
-			Issuer: "go.micro.srv.user",
+		jwt.StandardClaims{
+			ExpiresAt: expireToken,
+			Issuer:    "shipping.user",
 		},
 	}
 

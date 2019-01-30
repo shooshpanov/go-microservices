@@ -16,4 +16,4 @@ RUN mkdir /app
 WORKDIR /app
 COPY --from=builder /go/src/github.com/shooshpanov/microservices-project/email-service .
 
-CMD ["./shippy-email-service"]
+CMD ["./email-service"]

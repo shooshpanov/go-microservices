@@ -5,7 +5,8 @@ import (
 	"log"
 
 	micro "github.com/micro/go-micro"
-	pb "github.com/shooshpanov/microservices-project/user-service/proto/user"
+	_ "github.com/micro/go-plugins/registry/mdns"
+	pb "github.com/shooshpanov/microservices-project/user-service/proto/auth"
 )
 
 func main() {
@@ -33,7 +34,7 @@ func main() {
 	srv := micro.NewService(
 
 		// This name must match the package name given in your protobuf definition
-		micro.Name("go.micro.srv.user"),
+		micro.Name("shipping.auth"),
 		micro.Version("latest"),
 	)
 
@@ -45,7 +46,7 @@ func main() {
 	publisher := micro.NewPublisher("user.created", srv.Client())
 
 	// Register handler
-	pb.RegisterUserServiceHandler(srv.Server(), &service{repo, tokenService, publisher})
+	pb.RegisterAuthHandler(srv.Server(), &service{repo, tokenService, publisher})
 
 	// Run the server
 	if err := srv.Run(); err != nil {

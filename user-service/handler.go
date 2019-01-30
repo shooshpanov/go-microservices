@@ -1,27 +1,34 @@
 package main
 
-import  (
+import (
+	"errors"
+	"fmt"
+	"log"
+
+	micro "github.com/micro/go-micro"
+	pb "github.com/shooshpanov/microservices-project/user-service/proto/auth"
+	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/net/context"
-	pb "github.com/shooshpanov/microservices-project/user-service/proto/user"
 )
 
 const topic = "user.created"
 
 type service struct {
-	repo Repository
+	repo         Repository
 	tokenService Authable
+	Publisher    micro.Publisher
 }
 
 func (srv *service) Get(ctx context.Context, req *pb.User, res *pb.Response) error {
-	user, err := srv.repo.Get(req.id)
+	user, err := srv.repo.Get(req.Id)
 	if err != nil {
-		returm err
+		return err
 	}
 	res.User = user
 	return nil
 }
 
-func (srv *serivce) GetAll(ctx context.Context, req *pb.Request, res *pb.Response) error {
+func (srv *service) GetAll(ctx context.Context, req *pb.Request, res *pb.Response) error {
 	users, err := srv.repo.GetAll()
 	if err != nil {
 		return err
@@ -59,14 +66,15 @@ func (srv *service) Create(ctx context.Context, req *pb.User, res *pb.Response) 
 	if err != nil {
 		return err
 	}
+
 	req.Password = string(hashedPass)
 	if err := srv.repo.Create(req); err != nil {
-		return err
+		return errors.New(fmt.Sprintf("error creating user: %v", err))
 	}
 	res.User = req
 
 	if err := srv.Publisher.Publish(ctx, req); err != nil {
-		return err
+		return errors.New(fmt.Sprintf("error publishing event: %v", err))
 	}
 
 	return nil
