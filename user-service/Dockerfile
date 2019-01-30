@@ -1,4 +1,4 @@
-# vessel-service/Dockerfile
+# user-service/Dockerfile
 FROM golang:latest as builder
 
 WORKDIR /go/src/github.com/shooshpanov/microservices-project/user-service

@@ -5,6 +5,8 @@ import  (
 	pb "github.com/shooshpanov/microservices-project/user-service/proto/user"
 )
 
+const topic = "user.created"
+
 type service struct {
 	repo Repository
 	tokenService Authable
@@ -62,5 +64,33 @@ func (srv *service) Create(ctx context.Context, req *pb.User, res *pb.Response) 
 		return err
 	}
 	res.User = req
+
+	if err := srv.publishEvent(req); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (srv *servuce) publishEvent(user *pb.User) error {
+	// Marshall JSON string
+	body, err := json.Marshal(user)
+	if err != nil {
+		return err
+	}
+
+	// Create message to broker
+	msg := &broker.Message{
+		Header: map[string]string{
+			"id": user.id,
+		},
+		Body: body,
+	}
+
+	// Publish message to broker
+	if err:= srv.PubSub.Publish(topic, msg); err != nil {
+		log.Printf("[pub] failed: %v", err)
+	}
+
 	return nil
 }
