@@ -5,7 +5,7 @@ import (
 	"log"
 
 	micro "github.com/micro/go-micro"
-	pb "github.com/shooshpanov/microservices-project/user-service/proto/user"
+	pb "github.com/shooshpanov/microservices-project/user-service/proto/auth"
 )
 
 const topic = "user.created"
