@@ -6,7 +6,7 @@ import (
 
 	micro "github.com/micro/go-micro"
 	microclient "github.com/micro/go-micro/client"
-	pb "github.com/shooshpanov/microservices-project/user-service/proto/user"
+	pb "github.com/shooshpanov/microservices-project/user-service/proto/auth"
 	"golang.org/x/net/context"
 )
 

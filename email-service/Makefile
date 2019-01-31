@@ -6,4 +6,4 @@ run:
 		-p 50054 \
 		-e MICRO_SERVER_ADDRESS=:50054 \
 		-e MICRO_REGISTRY=mdns \
-email-service
+	email-service

@@ -26,7 +26,7 @@ func main() {
 
 	srv.Init()
 
-	micro.RegisterSubscriber(topic, srv.Server(), new(Sunscriber))
+	micro.RegisterSubscriber(topic, srv.Server(), new(Subscriber))
 
 	// Run the server
 	if err := srv.Run(); err != nil {

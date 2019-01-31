@@ -2,18 +2,27 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 
 	"os"
 
 	micro "github.com/micro/go-micro"
+	"github.com/micro/go-micro/metadata"
+	"github.com/micro/go-micro/server"
 	pb "github.com/shooshpanov/microservices-project/consignment-service/proto/consignment"
+	userService "github.com/shooshpanov/microservices-project/user-service/proto/auth"
 	vesselProto "github.com/shooshpanov/microservices-project/vessel-service/proto/vessel"
+	"golang.org/x/net/context"
 )
 
 const (
 	defaultHost = "localhost:27017"
+)
+
+var (
+	srv micro.Service
 )
 
 func main() {
@@ -42,13 +51,13 @@ func main() {
 	srv := micro.NewService(
 
 		// This name must match the package name given in your protobuf definition
-		micro.Name("go.micro.srv.consignment"),
+		micro.Name("shipping.consignment"),
 		micro.Version("latest"),
 		// Our auth middleware
 		micro.WrapHandler(AuthWrapper),
 	)
 
-	vesselClient := vesselProto.NewVesselServiceClient("go.micro.srv.vessel", srv.Client())
+	vesselClient := vesselProto.NewVesselServiceClient("shipping.vessel", srv.Client())
 
 	// Init will parse the command line flags.
 	srv.Init()
@@ -61,7 +70,6 @@ func main() {
 		fmt.Println(err)
 	}
 }
-
 
 // AuthWrapper is a high-order function which takes a HandlerFunc
 // and returns a function, which takes a context, request and response interface.
@@ -81,8 +89,8 @@ func AuthWrapper(fn server.HandlerFunc) server.HandlerFunc {
 		log.Println("Authenticating with token: ", token)
 
 		// Auth here
-		authClient := userService.NewUserServiceClient("go.micro.srv.user", client.DefaultClient)
-		_, err := authClient.ValidateToken(context.Background(), &userService.Token{
+		authClient := userService.NewAuthClient("shipping.user", srv.Client())
+		_, err := authClient.ValidateToken(ctx, &userService.Token{
 			Token: token,
 		})
 		if err != nil {
